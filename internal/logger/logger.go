@@ -106,7 +106,7 @@ func SetOutput() {
 	log.StandardLogger().Hooks = make(log.LevelHooks)
 	log.AddHook(
 		&writer.Hook{
-			Writer:    mustGetLogWriter(config.Get().Logging.Internal.LoggerConf, "mytoken.log"),
+			Writer:    mustGetLogWriter(config.Get().Logging.Internal.LoggerConf, "offa.log"),
 			LogLevels: minLogLevelToLevels(logLevel),
 		},
 	)

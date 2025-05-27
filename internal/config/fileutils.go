@@ -64,7 +64,7 @@ func readFile(filename string) ([]byte, error) {
 	return os.ReadFile(filename)
 }
 
-// MustReadFile reads a given file and returns the content. If an error occurs mytoken terminates.
+// MustReadFile reads a given file and returns the content. If an error occurs the application terminates.
 func mustReadFile(filename string) []byte {
 	file, err := readFile(filename)
 	if err != nil {
