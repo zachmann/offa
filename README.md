@@ -142,6 +142,10 @@ For more information about the offa config file, please refer to [OFFA Configura
 
 Still needs testing
 
+## Docker Images
+
+Docker images are available at [docker hub oidfed/offa](https://hub.docker.com/r/oidfed/offa/tags).
+
 ## Implementation State
 
 This is currently a Proof of Concept, that still needs some improvements and tweaking.
