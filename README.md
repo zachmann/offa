@@ -28,7 +28,45 @@ In this section we detail how to deploy OFFA with your reverse proxy.
 
 ### Traefik
 
-Still needs testing
+The following `docker-compose.yaml` is an example on how to set up offa next to your service with traefik (it 
+assumes an already running `traefik`, but it can also be added to the docker compose file).
+
+This assumes that the `docker-compose.yaml` lies next to your offa's `config.yaml` file.
+
+```
+services:
+
+  offa:
+    image: oidfed/offa:main
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ./:/data
+    expose:
+      - 15661
+    labels:
+      - traefik.enable=true
+      - traefik.port=15661
+      - traefik.http.routers.https-offa.entryPoints=https
+      - traefik.http.routers.https-offa.rule=Host(`offa.example.com`)
+      - traefik.http.routers.https-offa.tls=true
+      - traefik.http.routers.https-offa.tls.certresolver=le
+      - traefik.http.middlewares.offa.forwardauth.address=https://offa.example.com/auth
+      - traefik.http.middlewares.offa.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.offa.forwardauth.authResponseHeaders=X-Forwarded-User,X-Forwarded-Groups,X-Forwarded-Name,X-ForwardedEmail,X-Forwarded-Provider,X-Forwarded-Subject
+
+  whoami:
+    image: containous/whoami
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.https-whoami.rule=Host(`whoami.example.com`)
+      - traefik.http.routers.https-whoami.entryPoints=https
+      - traefik.http.routers.https-whoami.tls=true
+      - traefik.http.routers.https-whoami.tls.certresolver=le
+      - traefik.http.routers.https-whoami.middlewares=offa@docker
+    restart: unless-stopped
+
+```
 
 ### NGINX
 
@@ -68,7 +106,7 @@ services:
       caddy:
 
   offa:
-    image: myoidc/offa
+    image: oidfed/offa:main
     restart: unless-stopped
     volumes:
       - ./offa/config.yaml:/config.yaml:ro
@@ -77,8 +115,8 @@ services:
       caddy:
 
   # This would be your service
-  hello:
-    image: plippe/hello-world-web-service
+  whoami:
+    image: containous/whoami
     restart: unless-stopped
 
 networks:
@@ -92,13 +130,13 @@ offa.example.com {
   reverse_proxy offa:15661
 }
 
-hello.example.com {
+whoami.example.com {
     forward_auth offa:15661 {
 		uri /auth
 		copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
 	}
 
-    reverse_proxy hello:5000
+    reverse_proxy whoami:80
 }
 ```
 
@@ -119,7 +157,7 @@ sessions:
   cookie_domain: example.com
 
 auth:
-  - domain: hello.example.com
+  - domain: whoami.example.com
     require:
       groups: users
 
