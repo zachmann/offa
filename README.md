@@ -14,6 +14,12 @@ and maybe other reverse proxies.
 OFFA also implements [Auth MemCookie](https://zenprojects.github.io/Apache-Authmemcookie-Module/) usable with Apache.
 
 
+## Documentation
+
+For more information please refer to the Documentation at https://zachmann.github.io/offa/
+
+
+
 ## OFFA Configuration
 TODO, for now please refer to [internal/config/config.go](internal/config/config.go).
 
