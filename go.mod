@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/lestrrat-go/jwx/v3 v3.0.1
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.8.0
+	github.com/redis/go-redis/v9 v9.9.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/zachmann/go-oidfed v0.3.2-0.20250523141803-9849f5e150f4
