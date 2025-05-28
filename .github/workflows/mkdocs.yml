@@ -3,6 +3,11 @@ name: Deploy MkDocs documentation
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'internal/server/static/img/offa-text.svg'
+      - 'internal/server/static/img/offa.svg'
 
 permissions:
   contents: write  # Needed to push to gh-pages
