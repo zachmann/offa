@@ -1,0 +1,56 @@
+site_name: OFFA - Openid Federation Forward Auth
+site_author: Gabriel Zachmann
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  logo: assets/offa.svg
+  features:
+    - navigation.tabs
+    - navigation.instant
+    - navigation.tracking
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.integrate
+  navigation_depth: 4
+  hljs_languages:
+    - shell session
+    - yaml
+    - json
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+plugins:
+  - search
+  - awesome-pages:
+      collapse_single_pages: true
+  - macros
+  - social
+  - privacy
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/zachmann/offa
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/oidfed/offa
+  generator: false
+copyright: Copyright &copy; 2025 - 2025 Gabriel Zachmann
+extra_css:
+  - stylesheets/extra.css
