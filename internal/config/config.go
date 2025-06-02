@@ -28,6 +28,7 @@ type Config struct {
 	Federation     federationConf `yaml:"federation"`
 	Auth           authConf       `yaml:"auth"`
 	SessionStorage sessionConf    `yaml:"sessions"`
+	DebugAuth      bool           `yaml:"debug_auth"`
 }
 
 type federationConf struct {

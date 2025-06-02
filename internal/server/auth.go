@@ -38,6 +38,15 @@ func addAuthHandlers(s fiber.Router) {
 	s.Options(path, func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusOK) })
 	s.All(
 		path, func(c *fiber.Ctx) error {
+			if config.Get().DebugAuth {
+				fmt.Println("---")
+				fmt.Println("Auth Request")
+				fmt.Println(c.String())
+				for k, h := range c.GetReqHeaders() {
+					fmt.Printf("%s: %+v\n", k, h)
+				}
+				fmt.Println("---")
+			}
 			clientIP := c.IP()
 			if !isTrustedIP(clientIP) {
 				log.WithField("ip", clientIP).Info("Blocked untrusted IP")
