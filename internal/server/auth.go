@@ -70,8 +70,12 @@ func addAuthHandlers(s fiber.Router) {
 					Host:   forHost,
 					Path:   forPath,
 				}
+				st := rule.RedirectStatusCode
+				if st == 0 {
+					st = http.StatusSeeOther
+				}
 				return c.Redirect(
-					fmt.Sprintf("%s?next=%s", fullLoginPath, next.String()), http.StatusSeeOther,
+					fmt.Sprintf("%s?next=%s", fullLoginPath, next.String()), st,
 				)
 			}
 
