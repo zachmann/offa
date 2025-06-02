@@ -12,7 +12,7 @@ We assume the following project layout:
 │   └── data
 ├── docker-compose.yaml
 ├── offa
-│   └── config.yaml
+    └── config.yaml
 ```
 
 
