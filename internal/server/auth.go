@@ -65,18 +65,7 @@ func addAuthHandlers(s fiber.Router) {
 
 			sessionToken := c.Cookies(config.Get().SessionStorage.CookieName)
 			if sessionToken == "" {
-				next := url.URL{
-					Scheme: c.Get(fiber.HeaderXForwardedProto),
-					Host:   forHost,
-					Path:   forPath,
-				}
-				st := rule.RedirectStatusCode
-				if st == 0 {
-					st = http.StatusSeeOther
-				}
-				return c.Redirect(
-					fmt.Sprintf("%s?next=%s", fullLoginPath, next.String()), st,
-				)
+				return redirectNext(c, forHost, forPath, rule.RedirectStatusCode)
 			}
 
 			userInfos, err := validateSession(sessionToken)
@@ -84,7 +73,7 @@ func addAuthHandlers(s fiber.Router) {
 				if err != nil {
 					log.WithError(err).Info("Invalid session")
 				}
-				return c.Status(fiber.StatusUnauthorized).SendString("Invalid session")
+				return redirectNext(c, forHost, forPath, rule.RedirectStatusCode)
 			}
 
 			log.Debugf("auth request Userclaims are: %+v", userInfos)
@@ -167,4 +156,19 @@ func validateSession(sessionKey string) (claims model.UserClaims, err error) {
 		claims = nil
 	}
 	return
+}
+
+func redirectNext(c *fiber.Ctx, forHost, forPath string, ruleRedirectStatusCode int) error {
+	next := url.URL{
+		Scheme: c.Get(fiber.HeaderXForwardedProto),
+		Host:   forHost,
+		Path:   forPath,
+	}
+	st := ruleRedirectStatusCode
+	if st == 0 {
+		st = http.StatusSeeOther
+	}
+	return c.Redirect(
+		fmt.Sprintf("%s?next=%s", fullLoginPath, next.String()), st,
+	)
 }
