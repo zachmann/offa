@@ -5,189 +5,193 @@ OFFA can be used with apache by using the
 The following example configuration can be used (tweak as needed):
 
 We assume the following project layout:
-```ascii
-.
-├── apache
-│   ├── Dockerfile
-│   └── httpd.conf
-├── certbot
-│   ├── ...
-├── docker-compose.yaml
-└── offa
-    └── config.yaml
+```tree
+apache
+    Dockerfile #(1)!
+    httpd.conf #(2)!
+certbot/
+docker-compose.yaml #(3)!
+offa
+    config.yaml #(4)!
 ```
 
+1. [`apache/Dockerfile`](#apachedockerfile)
+2. [`apache/httpd.conf`](#apachehttpdconf)
+3. [`docker-compose.yaml`](#docker-composeyaml)
+4. [`offa/config.yaml`](#offaconfigyaml)
 
-#### docker-compose.yaml
-```yaml
-services:
+=== ":material-file-code: `docker-compose.yaml`"
 
-  apache:
-    build:
-      context: ./apache
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./apache/httpd.conf:/usr/local/apache2/conf/extra/httpd-authmem.conf:ro
-      - ./certbot:/etc/letsencrypt:ro
-    depends_on:
-      - whoami
-      - offa
+    ```yaml
+    services:
 
-  memcached:
-    image: memcached:alpine
+      apache:
+        build:
+          context: ./apache
+        restart: unless-stopped
+        ports:
+          - "80:80"
+          - "443:443"
+        volumes:
+          - ./apache/httpd.conf:/usr/local/apache2/conf/extra/httpd-authmem.conf:ro
+          - ./certbot:/etc/letsencrypt:ro
+        depends_on:
+          - whoami
+          - offa
 
-  offa:
-    image: oidfed/offa:main
-    restart: unless-stopped
-    volumes:
-      - ./offa/config.yaml:/config.yaml:ro
-      - ./offa:/data
-    expose:
-      - 15661
+      memcached:
+        image: memcached:alpine
 
-  # This would be your service
-  whoami:
-    image: containous/whoami
-    restart: unless-stopped
-```
+      offa:
+        image: oidfed/offa:main
+        restart: unless-stopped
+        volumes:
+          - ./offa/config.yaml:/config.yaml:ro
+          - ./offa:/data
+        expose:
+          - 15661
 
-#### apache/Dockerfile
-```Dockerfile
-FROM httpd:2.4
+      # This would be your service
+      whoami:
+        image: containous/whoami
+        restart: unless-stopped
+    ```
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y \
-    apache2-dev \
-    build-essential \
-    git \
-    autoconf \
-    automake \
-    libtool \
-    pkg-config \
-    curl \
-    ca-certificates \
-    libevent-dev \
-    memcached \
-    libmemcached-dev \
-    && rm -rf /var/lib/apt/lists/*
+=== ":material-file-code: `apache/Dockerfile`"
 
-RUN git clone https://github.com/ZenProjects/Apache-Authmemcookie-Module.git /usr/src/authmemcookie && \
-    cd /usr/src/authmemcookie && \
-    autoconf -f && \
-    ./configure --with-libmemcached=/usr --with-apxs=/usr/local/apache2/bin/apxs && \
-    make && \
-    make install
+    ```Dockerfile
+    FROM httpd:2.4
 
-RUN ls -l /usr/local/apache2/modules
+    # Install build dependencies
+    RUN apt-get update && apt-get install -y \
+        apache2-dev \
+        build-essential \
+        git \
+        autoconf \
+        automake \
+        libtool \
+        pkg-config \
+        curl \
+        ca-certificates \
+        libevent-dev \
+        memcached \
+        libmemcached-dev \
+        && rm -rf /var/lib/apt/lists/*
 
-RUN echo "LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so" \
-    >> /usr/local/apache2/conf/httpd.conf
-RUN echo "Include conf/extra/httpd-authmem.conf" \
-    >> /usr/local/apache2/conf/httpd.conf
+    RUN git clone https://github.com/ZenProjects/Apache-Authmemcookie-Module.git /usr/src/authmemcookie && \
+        cd /usr/src/authmemcookie && \
+        autoconf -f && \
+        ./configure --with-libmemcached=/usr --with-apxs=/usr/local/apache2/bin/apxs && \
+        make && \
+        make install
 
-EXPOSE 443
-CMD ["httpd-foreground"]
-```
+    RUN ls -l /usr/local/apache2/modules
 
-#### apache/httpd.conf
+    RUN echo "LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so" \
+        >> /usr/local/apache2/conf/httpd.conf
+    RUN echo "Include conf/extra/httpd-authmem.conf" \
+        >> /usr/local/apache2/conf/httpd.conf
 
-```
-ServerName whoami.example.com
+    EXPOSE 443
+    CMD ["httpd-foreground"]
+    ```
 
-LoadModule ssl_module modules/mod_ssl.so
-LoadModule proxy_module modules/mod_proxy.so
-LoadModule proxy_http_module modules/mod_proxy_http.so
-LoadModule headers_module modules/mod_headers.so
-LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
-LoadModule rewrite_module modules/mod_rewrite.so
+=== ":material-file-code: `apache/httpd.conf`"
 
-Listen 443
-
-<VirtualHost *:443>
+    ```apache
     ServerName whoami.example.com
 
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/whoami.example.com/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/whoami.example.com/privkey.pem
+    LoadModule ssl_module modules/mod_ssl.so
+    LoadModule proxy_module modules/mod_proxy.so
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+    LoadModule headers_module modules/mod_headers.so
+    LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
+    LoadModule rewrite_module modules/mod_rewrite.so
 
-    RewriteEngine On
-    RewriteRule ^/autherror$ https://offa.example.com/login?next=https://whoami.example.com [R=303,L]
+    Listen 443
 
-    ProxyPreserveHost On
-    ProxyPass "/autherror" !
-    ProxyPass / http://whoami:80/
-    ProxyPassReverse / http://whoami:80/
+    <VirtualHost *:443>
+        ServerName whoami.example.com
 
-	
-    <Location />
-        AuthType Cookie
-        AuthName "OFFA"
-	Auth_memCookie_Memcached_Configuration --SERVER=memcached:11211
-	Auth_memCookie_SessionTableSize 32
-	Auth_memCookie_SetSessionHTTPHeader on
-	Auth_memCookie_SetSessionHTTPHeaderPrefix X-Forwarded-
-	Auth_memCookie_CookieName offa-session
+        SSLEngine on
+        SSLCertificateFile /etc/letsencrypt/live/whoami.example.com/fullchain.pem
+        SSLCertificateKeyFile /etc/letsencrypt/live/whoami.example.com/privkey.pem
 
-	ErrorDocument 401 /autherror
+        RewriteEngine On
+        RewriteRule ^/autherror$ https://offa.example.com/login?next=https://whoami.example.com [R=303,L]
 
-        Require valid-user
-    </Location>
+        ProxyPreserveHost On
+        ProxyPass "/autherror" !
+        ProxyPass / http://whoami:80/
+        ProxyPassReverse / http://whoami:80/
 
-    <Location "/autherror">
-    	Require all granted
-	Satisfy any
-    </Location>
+        
+        <Location />
+            AuthType Cookie
+            AuthName "OFFA"
+        Auth_memCookie_Memcached_Configuration --SERVER=memcached:11211
+        Auth_memCookie_SessionTableSize 32
+        Auth_memCookie_SetSessionHTTPHeader on
+        Auth_memCookie_SetSessionHTTPHeaderPrefix X-Forwarded-
+        Auth_memCookie_CookieName offa-session
+
+        ErrorDocument 401 /autherror
+
+            Require valid-user
+        </Location>
+
+        <Location "/autherror">
+            Require all granted
+        Satisfy any
+        </Location>
 
 
-</VirtualHost>
+    </VirtualHost>
 
 
-<VirtualHost *:443>
-    ServerName offa.example.com
+    <VirtualHost *:443>
+        ServerName offa.example.com
 
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/offa.example.com/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/offa.example.com/privkey.pem
+        SSLEngine on
+        SSLCertificateFile /etc/letsencrypt/live/offa.example.com/fullchain.pem
+        SSLCertificateKeyFile /etc/letsencrypt/live/offa.example.com/privkey.pem
 
-    ProxyPreserveHost On
-    ProxyPass / http://offa:15661/
-    ProxyPassReverse / http://offa:15661/
-</VirtualHost>
-```
+        ProxyPreserveHost On
+        ProxyPass / http://offa:15661/
+        ProxyPassReverse / http://offa:15661/
+    </VirtualHost>
+    ```
 
-#### offa/config.yaml
+=== ":material-file-code: `offa/config.yaml`"
 
-```yaml
-server:
+    ```yaml
+    server:
 
-logging:
-  access:
-    stderr: true
-  internal:
-    level: info
-    stderr: true
+    logging:
+      access:
+        stderr: true
+      internal:
+        level: info
+        stderr: true
 
-sessions:
-  ttl: 3600
-  cookie_domain: example.com
-  memcached_addr: memcached:11211
+    sessions:
+      ttl: 3600
+      cookie_domain: example.com
+      memcached_addr: memcached:11211
 
-federation:
-  entity_id: https://offa.example.com
-  trust_anchors:
-    - entity_id: https://ta.example.com
-  authority_hints:
-    - https://ta.example.com
-  logo_uri: https://offa.example.com/static/img/offa-text.svg
-  key_storage: /data
-  use_resolve_endpoint: true
-  use_entity_collection_endpoint: true
-```
+    federation:
+      entity_id: https://offa.example.com
+      trust_anchors:
+        - entity_id: https://ta.example.com
+      authority_hints:
+        - https://ta.example.com
+      logo_uri: https://offa.example.com/static/img/offa-text.svg
+      key_storage: /data
+      use_resolve_endpoint: true
+      use_entity_collection_endpoint: true
+    ```
 
-For more information about the offa config file, please refer to [OFFA Configuration](../config.md).
+    For more information about the offa config file, please refer to [OFFA Configuration](../config.md).
 
 ## Notes
 - The example setup was tested and works, but there is probably room for

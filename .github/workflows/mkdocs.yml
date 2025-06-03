@@ -27,7 +27,7 @@ jobs:
 
       - name: Install MkDocs and theme
         run: |
-          pip install mkdocs mkdocs-material mkdocs-macros-plugin mkdocs-awesome-pages-plugin mkdocs-material[imaging]
+          pip install mkdocs mkdocs-material mkdocs-macros-plugin mkdocs-awesome-pages-plugin mkdocs-material[imaging] markdown-exec[ansi]
 
       - name: Deploy docs to GitHub Pages
         run: mkdocs gh-deploy --force
