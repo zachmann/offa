@@ -63,6 +63,8 @@ extra:
       link: https://github.com/zachmann/offa
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/r/oidfed/offa
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:oidfed@lists.kit.edu
   generator: false
 copyright: Copyright &copy; 2025 - 2025 Gabriel Zachmann
 extra_css:
