@@ -27,6 +27,7 @@ theme:
     - toc.integrate
     - content.code.copy
     - content.code.annotate
+    - content.tooltips
   navigation_depth: 4
   hljs_languages:
     - shell session
@@ -36,12 +37,14 @@ markdown_extensions:
   - toc:
       permalink: true
   - attr_list
+  - abbr
   - admonition
   - md_in_html
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
       slugify: !!python/object/apply:pymdownx.slugs.slugify
@@ -70,3 +73,4 @@ extra:
 copyright: Copyright &copy; 2025 - 2025 Gabriel Zachmann
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/admonitions.css

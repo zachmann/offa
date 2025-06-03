@@ -1,0 +1,3 @@
+---
+icon: material/text-search
+---

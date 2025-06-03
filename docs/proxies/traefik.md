@@ -1,3 +1,7 @@
+---
+description: Configuration of OFFA with a Traefik reverse proxy.
+icon: simple/traefikproxy
+---
 
 The following example configuration can be used (tweak as needed):
 
@@ -82,4 +86,4 @@ offa
       use_entity_collection_endpoint: true
     ```
 
-    For more information about the offa config file, please refer to [OFFA Configuration](../config.md).
+    For more information about the offa config file, please refer to [OFFA Configuration](../config/index.md).

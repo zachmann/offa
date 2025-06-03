@@ -1,3 +1,7 @@
+---
+description: Configuration of OFFA with an apache reverse proxy and mod AuthMemCookie.
+icon: simple/apache
+---
 
 OFFA can be used with apache by using the
 [AuthMemCookie Apache Module](https://zenprojects.github.io/Apache-Authmemcookie-Module/).
@@ -191,7 +195,7 @@ offa
       use_entity_collection_endpoint: true
     ```
 
-    For more information about the offa config file, please refer to [OFFA Configuration](../config.md).
+    For more information about the offa config file, please refer to [OFFA Configuration](../config/index.md).
 
 ## Notes
 - The example setup was tested and works, but there is probably room for

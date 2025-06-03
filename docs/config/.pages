@@ -1,0 +1,8 @@
+arrange:
+  - index.md
+  - server.md
+  - logging.md
+  - federation.md
+  - auth.md
+  - sessions.md
+  - debug_auth.md
