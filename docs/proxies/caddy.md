@@ -1,5 +1,4 @@
 
-### Caddy
 
 The following example configuration can be used (tweak as needed):
 

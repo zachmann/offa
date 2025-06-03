@@ -1,4 +1,3 @@
-### Traefik
 
 The following `docker-compose.yaml` is an example on how to set up offa next to your service with traefik (it
 assumes an already running `traefik`, but it can also be added to the docker compose file).
