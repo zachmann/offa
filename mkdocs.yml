@@ -16,6 +16,7 @@ theme:
         icon: material/brightness-7
         name: Switch to dark mode
   logo: assets/offa.svg
+  favicon: assets/favicon.ico
   features:
     - navigation.tabs
     - navigation.instant
