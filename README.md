@@ -21,7 +21,9 @@ For more information please refer to the Documentation at https://zachmann.githu
 
 
 ## OFFA Configuration
-TODO, for now please refer to [internal/config/config.go](internal/config/config.go).
+
+Configuration of OFFA is explained in details at
+https://zachmann.github.io/offa/config/.
 
 
 
