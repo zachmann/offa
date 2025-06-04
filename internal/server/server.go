@@ -69,11 +69,11 @@ func initFederationEntity() {
 			ClientName:              fedConfig.ClientName,
 			LogoURI:                 fedConfig.LogoURI,
 			JWKS:                    internal.GetJWKS(internal.OIDCSigningKeyName),
-			OrganizationName:        fedConfig.OrganisationName,
+			OrganizationName:        fedConfig.OrganizationName,
 			ClientRegistrationTypes: []string{"automatic"},
 		},
 		FederationEntity: &pkg.FederationEntityMetadata{
-			OrganizationName: fedConfig.OrganisationName,
+			OrganizationName: fedConfig.OrganizationName,
 			LogoURI:          fedConfig.LogoURI,
 		},
 	}

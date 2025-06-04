@@ -38,7 +38,7 @@ type federationConf struct {
 	Scopes                      []string                                  `yaml:"scopes"`
 	TrustAnchors                pkg.TrustAnchors                          `yaml:"trust_anchors"`
 	AuthorityHints              []string                                  `yaml:"authority_hints"`
-	OrganisationName            string                                    `yaml:"organisation_name"`
+	OrganizationName            string                                    `yaml:"organization_name"`
 	KeyStorage                  string                                    `yaml:"key_storage"`
 	OnlyAutomaticOPs            bool                                      `yaml:"filter_to_automatic_ops"`
 	TrustMarks                  []*pkg.EntityConfigurationTrustMarkConfig `yaml:"trust_marks"`
