@@ -44,6 +44,7 @@ type federationConf struct {
 	TrustMarks                  []*pkg.EntityConfigurationTrustMarkConfig `yaml:"trust_marks"`
 	UseResolveEndpoint          bool                                      `yaml:"use_resolve_endpoint"`
 	UseEntityCollectionEndpoint bool                                      `yaml:"use_entity_collection_endpoint"`
+	EntityCollectionInterval    int64                                     `yaml:"entity_collection_interval"`
 }
 
 type sessionConf struct {
@@ -287,7 +288,10 @@ func MustLoadConfig() {
 			TTL:        3600,
 			CookieName: "offa-session",
 		},
-		Federation: federationConf{ClientName: "OFFA - Openid Federation Forward Auth"},
+		Federation: federationConf{
+			ClientName:               "OFFA - Openid Federation Forward Auth",
+			EntityCollectionInterval: 5,
+		},
 	}
 	if err := yaml.Unmarshal(data, conf); err != nil {
 		log.Fatal(err)

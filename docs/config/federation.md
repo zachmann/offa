@@ -286,3 +286,20 @@ It is generally more performant to rely on an external endpoint.
         use_entity_collection_endpoint: true
     ```
 
+
+## `entity_collection_interval`
+<span class="badge badge-purple" title="Value Type">integer</span>
+<span class="badge badge-blue" title="Default Value">5</span>
+<span class="badge badge-green" title="If this option is required or optional">optional</span>
+
+The `entity_collection_interval` option defines in which interval OFFA will 
+query the Entity Collection Endpoint or do entity collection on its own. The 
+time is given in minutes!
+
+??? file "config.yaml"
+
+    ```yaml
+    federation:
+        entity_collection_interval: 60
+    ```
+

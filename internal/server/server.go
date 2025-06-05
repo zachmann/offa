@@ -34,6 +34,7 @@ var fullLoginPath string
 
 // Init initializes the server
 func Init() {
+	scheduleBuildOPOptions()
 	initHtmls()
 	initFederationEntity()
 	server = fiber.New(serverConfig)

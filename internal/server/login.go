@@ -36,7 +36,21 @@ func addLoginHandlers(s fiber.Router) {
 	s.Get("/redirect", codeExchange)
 }
 
-func showLoginPage(c *fiber.Ctx) error {
+var opOptions string
+
+func scheduleBuildOPOptions() {
+	ticker := time.NewTicker(time.Duration(config.Get().Federation.EntityCollectionInterval) * time.Minute) // Replace 5 with your desired interval
+
+	go buildOPOptions()
+
+	go func() {
+		for range ticker.C {
+			buildOPOptions()
+		}
+	}()
+}
+
+func buildOPOptions() {
 	const opOptionFmt = `<option value="%s">%s</option>`
 	var options string
 	filters := []pkg.EntityCollectionFilter{}
@@ -70,12 +84,16 @@ func showLoginPage(c *fiber.Ctx) error {
 			),
 		)
 	}
+	opOptions = options
+}
+
+func showLoginPage(c *fiber.Ctx) error {
 	var img string
 	if config.Get().Federation.LogoURI != "" {
 		img = fmt.Sprintf(`<img src="%s" alt="%s" class="logo"/>`, config.Get().Federation.LogoURI, "Logo")
 	}
 	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-	return c.SendString(fmt.Sprintf(loginHtml, config.Get().Federation.ClientName, img, options, c.Query("next")))
+	return c.SendString(fmt.Sprintf(loginHtml, config.Get().Federation.ClientName, img, opOptions, c.Query("next")))
 }
 
 type stateData struct {
