@@ -67,7 +67,7 @@ offa
     whoami.example.com {
         forward_auth offa:15661 {
             uri /auth
-            copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+            copy_headers  X-Forwarded-User X-Forwarded-Groups X-Forwarded-Name X-Forwarded-Email X-Forwarded-Provider X-Forwarded-Subject
         }
 
         reverse_proxy whoami:80
