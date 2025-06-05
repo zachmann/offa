@@ -178,6 +178,7 @@ type loggingConf struct {
 
 type internalLoggerConf struct {
 	LoggerConf `yaml:",inline"`
+	Level      string          `yaml:"level"`
 	Smart      smartLoggerConf `yaml:"smart"`
 }
 
@@ -185,7 +186,6 @@ type internalLoggerConf struct {
 type LoggerConf struct {
 	Dir    string `yaml:"dir"`
 	StdErr bool   `yaml:"stderr"`
-	Level  string `yaml:"level"`
 }
 
 type smartLoggerConf struct {
