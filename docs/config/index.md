@@ -50,3 +50,16 @@ The following is a small example config file:
           use_resolve_endpoint: true
           use_entity_collection_endpoint: true
     ```
+
+## Configuration Sections
+
+<div class="grid cards" markdown>
+
+- [:material-server-network: Server](server.md)
+- [:material-script-text: Logging](logging.md)
+- [:simple-openid: Federation](federation.md)
+- [:material-security: Auth](auth.md)
+- [:material-cookie: Sessions](sessions.md)
+- [:fontawesome-solid-person-digging: `debug_auth`](debug_auth.md)
+
+</div>
