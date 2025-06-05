@@ -36,8 +36,6 @@ offa
           - ./caddy/Caddyfile:/etc/caddy/Caddyfile
           - ./caddy/data:/data
           - ./caddy/config:/config
-        networks:
-          caddy:
 
       offa:
         image: oidfed/offa:main
@@ -45,16 +43,12 @@ offa
         volumes:
           - ./offa/config.yaml:/config.yaml:ro
           - ./offa:/data
-        networks:
-          caddy:
 
       # This would be your service
       whoami:
         image: containous/whoami
         restart: unless-stopped
 
-    networks:
-      caddy:
     ```
 
 === ":material-file-code: `caddy/Caddyfile`"
