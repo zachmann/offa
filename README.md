@@ -40,12 +40,19 @@ The following is a list of TODOs:
 - Query userinfo endpoint for user information in additional to id token.
 - Show Home page with user information
     - Also use this as the default redirect target if no `next` is given
-- Verify usage with:
-    - Traefik
-    - NGINX
-    - Apache
 - Other things will probably be added with further testing
-- Extended documentation
+
+## Fun Facts about OFFA
+
+- The default port `15661` represents the name `OFFA`
+  - `O` is the 15th letter of the alphabet, `F` the sixth, `A` the first
+- The elements in the logo have a meaning:
+  - You might have noticed that OFFA sounds a lot like offer. The open hand 
+    offers the feather.
+  - The word `federation` contains the German word `Feder` which means 
+    `feather`. Therefore, the feather.
+  - Putting it together: A hand offering a feather.
+
 
 ---
 You do not have to use OFFA, it's just an offer.
