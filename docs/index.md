@@ -1,6 +1,6 @@
 # OFFA - Openid Federation Forward Auth
 
-<img alt="logo" height="200" src="assets/offa-text.svg"/>
+![Logo](./assets/offa-text.svg){ width="300" loading=lazy align=left }
 
 OFFA offers easy to use OpenID Federation Authentication and Authorisation for existing services.
 OFFA can be deployed along existing services and handle all OpenID Federation communication for your services.
