@@ -64,7 +64,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/zachmann/offa
+      link: https://github.com/go-oidfed/offa
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/r/oidfed/offa
     - icon: fontawesome/solid/paper-plane

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/zachmann/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/config"
 )
 
 const _loginHtml = `<!DOCTYPE html>

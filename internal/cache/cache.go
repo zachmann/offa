@@ -10,10 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 
-	fedcache "github.com/zachmann/go-oidfed/pkg/cache"
+	fedcache "github.com/go-oidfed/lib/cache"
 
-	"github.com/zachmann/offa/internal/config"
-	"github.com/zachmann/offa/internal/model"
+	"github.com/go-oidfed/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/model"
 )
 
 func Init() {

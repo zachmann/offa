@@ -6,18 +6,18 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/go-oidfed/lib"
+	"github.com/go-oidfed/lib/apimodel"
+	"github.com/go-oidfed/lib/oidfedconst"
 	"github.com/gofiber/fiber/v2"
 	"github.com/lestrrat-go/jwx/v3/jws"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg"
-	"github.com/zachmann/go-oidfed/pkg/apimodel"
-	"github.com/zachmann/go-oidfed/pkg/constants"
 
-	"github.com/zachmann/offa/internal"
-	"github.com/zachmann/offa/internal/cache"
-	"github.com/zachmann/offa/internal/config"
-	"github.com/zachmann/offa/internal/model"
-	"github.com/zachmann/offa/internal/pkce"
+	"github.com/go-oidfed/offa/internal"
+	"github.com/go-oidfed/offa/internal/cache"
+	"github.com/go-oidfed/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/model"
+	"github.com/go-oidfed/offa/internal/pkce"
 )
 
 const browserStateCookieName = "_offa_auth_state"
@@ -53,22 +53,22 @@ func scheduleBuildOPOptions() {
 func buildOPOptions() {
 	const opOptionFmt = `<option value="%s">%s</option>`
 	var options string
-	filters := []pkg.EntityCollectionFilter{}
-	allOPs := make(map[string]*pkg.CollectedEntity)
+	filters := []oidfed.EntityCollectionFilter{}
+	allOPs := make(map[string]*oidfed.CollectedEntity)
 	for _, ta := range config.Get().Federation.TrustAnchors {
-		var collector pkg.EntityCollector
+		var collector oidfed.EntityCollector
 		if config.Get().Federation.UseEntityCollectionEndpoint {
-			collector = pkg.SmartRemoteEntityCollector{TrustAnchors: config.Get().Federation.TrustAnchors.EntityIDs()}
+			collector = oidfed.SmartRemoteEntityCollector{TrustAnchors: config.Get().Federation.TrustAnchors.EntityIDs()}
 		} else {
-			collector = &pkg.SimpleEntityCollector{}
+			collector = &oidfed.SimpleEntityCollector{}
 		}
-		ops := pkg.FilterableVerifiedChainsEntityCollector{
+		ops := oidfed.FilterableVerifiedChainsEntityCollector{
 			Collector: collector,
 			Filters:   filters,
 		}.CollectEntities(
 			apimodel.EntityCollectionRequest{
 				TrustAnchor: ta.EntityID,
-				EntityTypes: []string{constants.EntityTypeOpenIDProvider},
+				EntityTypes: []string{oidfedconst.EntityTypeOpenIDProvider},
 			},
 		)
 		for _, op := range ops {
@@ -77,14 +77,28 @@ func buildOPOptions() {
 	}
 	for _, op := range allOPs {
 		options += fmt.Sprintf(
-			opOptionFmt, op.EntityID, internal.FirstNonEmpty(
-				op.DisplayNames[constants.EntityTypeOpenIDProvider],
-				op.DisplayNames[constants.EntityTypeFederationEntity],
-				op.EntityID,
-			),
+			opOptionFmt, op.EntityID, getDisplayNameFromEntityInfo(op),
 		)
 	}
 	opOptions = options
+}
+
+func getDisplayNameFromEntityInfo(entity *oidfed.CollectedEntity) string {
+	if entity == nil {
+		return ""
+	}
+	if entity.UIInfos == nil {
+		return entity.EntityID
+	}
+	op, ok := entity.UIInfos[oidfedconst.EntityTypeOpenIDProvider]
+	if ok && op.DisplayName != "" {
+		return op.DisplayName
+	}
+	fed, ok := entity.UIInfos[oidfedconst.EntityTypeFederationEntity]
+	if ok && fed.DisplayName != "" {
+		return fed.DisplayName
+	}
+	return entity.EntityID
 }
 
 func showLoginPage(c *fiber.Ctx) error {

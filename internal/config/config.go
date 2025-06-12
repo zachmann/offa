@@ -6,12 +6,12 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/go-oidfed/lib"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg"
 	"gopkg.in/yaml.v3"
 
-	"github.com/zachmann/offa/internal/model"
+	"github.com/go-oidfed/offa/internal/model"
 )
 
 var conf *Config
@@ -32,28 +32,28 @@ type Config struct {
 }
 
 type federationConf struct {
-	EntityID                    string                                    `yaml:"entity_id"`
-	ClientName                  string                                    `yaml:"client_name"`
-	LogoURI                     string                                    `yaml:"logo_uri"`
-	Scopes                      []string                                  `yaml:"scopes"`
-	TrustAnchors                pkg.TrustAnchors                          `yaml:"trust_anchors"`
-	AuthorityHints              []string                                  `yaml:"authority_hints"`
-	OrganizationName            string                                    `yaml:"organization_name"`
-	KeyStorage                  string                                    `yaml:"key_storage"`
-	OnlyAutomaticOPs            bool                                      `yaml:"filter_to_automatic_ops"`
-	TrustMarks                  []*pkg.EntityConfigurationTrustMarkConfig `yaml:"trust_marks"`
-	UseResolveEndpoint          bool                                      `yaml:"use_resolve_endpoint"`
-	UseEntityCollectionEndpoint bool                                      `yaml:"use_entity_collection_endpoint"`
-	EntityCollectionInterval    int64                                     `yaml:"entity_collection_interval"`
+	EntityID                    string                                       `yaml:"entity_id"`
+	ClientName                  string                                       `yaml:"client_name"`
+	LogoURI                     string                                       `yaml:"logo_uri"`
+	Scopes                      []string                                     `yaml:"scopes"`
+	TrustAnchors                oidfed.TrustAnchors                          `yaml:"trust_anchors"`
+	AuthorityHints              []string                                     `yaml:"authority_hints"`
+	OrganizationName            string                                       `yaml:"organization_name"`
+	KeyStorage                  string                                       `yaml:"key_storage"`
+	OnlyAutomaticOPs            bool                                         `yaml:"filter_to_automatic_ops"`
+	TrustMarks                  []*oidfed.EntityConfigurationTrustMarkConfig `yaml:"trust_marks"`
+	UseResolveEndpoint          bool                                         `yaml:"use_resolve_endpoint"`
+	UseEntityCollectionEndpoint bool                                         `yaml:"use_entity_collection_endpoint"`
+	EntityCollectionInterval    int64                                        `yaml:"entity_collection_interval"`
 }
 
 type sessionConf struct {
-	TTL             int                                            `yaml:"ttl"`
-	RedisAddr       string                                         `yaml:"redis_addr"`
-	MemCachedAddr   string                                         `yaml:"memcached_addr"`
-	MemCachedClaims map[string]pkg.SliceOrSingleValue[model.Claim] `yaml:"memcached_claims"`
-	CookieName      string                                         `yaml:"cookie_name"`
-	CookieDomain    string                                         `yaml:"cookie_domain"`
+	TTL             int                                               `yaml:"ttl"`
+	RedisAddr       string                                            `yaml:"redis_addr"`
+	MemCachedAddr   string                                            `yaml:"memcached_addr"`
+	MemCachedClaims map[string]oidfed.SliceOrSingleValue[model.Claim] `yaml:"memcached_claims"`
+	CookieName      string                                            `yaml:"cookie_name"`
+	CookieDomain    string                                            `yaml:"cookie_domain"`
 }
 
 func (c sessionConf) validate() error {
@@ -71,18 +71,18 @@ func (c sessionConf) validate() error {
 type authConf []*authRule
 
 type authRule struct {
-	Domain             string                                                                 `yaml:"domain"`
-	DomainRegex        string                                                                 `yaml:"domain_regex"`
-	DomainPattern      *regexp.Regexp                                                         `yaml:"-"`
-	Path               string                                                                 `yaml:"path"`
-	PathRegex          string                                                                 `yaml:"path_regex"`
-	PathPattern        *regexp.Regexp                                                         `yaml:"-"`
-	Require            pkg.SliceOrSingleValue[map[model.Claim]pkg.SliceOrSingleValue[string]] `yaml:"require"`
-	ForwardHeaders     map[string]pkg.SliceOrSingleValue[model.Claim]                         `yaml:"forward_headers"`
-	RedirectStatusCode int                                                                    `yaml:"redirect_status"`
+	Domain             string                                                                       `yaml:"domain"`
+	DomainRegex        string                                                                       `yaml:"domain_regex"`
+	DomainPattern      *regexp.Regexp                                                               `yaml:"-"`
+	Path               string                                                                       `yaml:"path"`
+	PathRegex          string                                                                       `yaml:"path_regex"`
+	PathPattern        *regexp.Regexp                                                               `yaml:"-"`
+	Require            oidfed.SliceOrSingleValue[map[model.Claim]oidfed.SliceOrSingleValue[string]] `yaml:"require"`
+	ForwardHeaders     map[string]oidfed.SliceOrSingleValue[model.Claim]                            `yaml:"forward_headers"`
+	RedirectStatusCode int                                                                          `yaml:"redirect_status"`
 }
 
-var DefaultForwardHeaders = map[string]pkg.SliceOrSingleValue[model.Claim]{
+var DefaultForwardHeaders = map[string]oidfed.SliceOrSingleValue[model.Claim]{
 	"X-Forwarded-User": {
 		"preferred_username",
 		"sub",
@@ -96,7 +96,7 @@ var DefaultForwardHeaders = map[string]pkg.SliceOrSingleValue[model.Claim]{
 	},
 	"X-Forwarded-Name": {"name"},
 }
-var DefaultMemCachedClaims = map[string]pkg.SliceOrSingleValue[model.Claim]{
+var DefaultMemCachedClaims = map[string]oidfed.SliceOrSingleValue[model.Claim]{
 	"UserName": {
 		"preferred_username",
 		"sub",

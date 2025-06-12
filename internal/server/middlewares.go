@@ -15,7 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	log "github.com/sirupsen/logrus"
 
-	logger2 "github.com/zachmann/offa/internal/logger"
+	logger2 "github.com/go-oidfed/offa/internal/logger"
 )
 
 func addMiddlewares(s fiber.Router) {

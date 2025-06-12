@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-oidfed/lib"
 	"github.com/gofiber/fiber/v2"
 	"github.com/lestrrat-go/jwx/v3/jwa"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg"
 
-	"github.com/zachmann/offa/internal"
-	"github.com/zachmann/offa/internal/config"
+	"github.com/go-oidfed/offa/internal"
+	"github.com/go-oidfed/offa/internal/config"
 )
 
 var server *fiber.App
@@ -26,8 +26,8 @@ var serverConfig = fiber.Config{
 	Network:      "tcp",
 }
 
-var federationLeafEntity *pkg.FederationLeaf
-var requestObjectProducer *pkg.RequestObjectProducer
+var federationLeafEntity *oidfed.FederationLeaf
+var requestObjectProducer *oidfed.RequestObjectProducer
 var scopes string
 var redirectURI string
 var fullLoginPath string
@@ -56,12 +56,12 @@ func initFederationEntity() {
 	if scopes == "" {
 		scopes = "openid profile email"
 	}
-	requestObjectProducer = pkg.NewRequestObjectProducer(
+	requestObjectProducer = oidfed.NewRequestObjectProducer(
 		fedConfig.EntityID, internal.GetKey(internal.OIDCSigningKeyName), jwa.ES512(), 60,
 	)
 
-	metadata := &pkg.Metadata{
-		RelyingParty: &pkg.OpenIDRelyingPartyMetadata{
+	metadata := &oidfed.Metadata{
+		RelyingParty: &oidfed.OpenIDRelyingPartyMetadata{
 			Scope:                   scopes,
 			RedirectURIS:            []string{redirectURI},
 			ResponseTypes:           []string{"code"},
@@ -73,15 +73,15 @@ func initFederationEntity() {
 			OrganizationName:        fedConfig.OrganizationName,
 			ClientRegistrationTypes: []string{"automatic"},
 		},
-		FederationEntity: &pkg.FederationEntityMetadata{
+		FederationEntity: &oidfed.FederationEntityMetadata{
 			OrganizationName: fedConfig.OrganizationName,
 			LogoURI:          fedConfig.LogoURI,
 		},
 	}
 	var err error
-	federationLeafEntity, err = pkg.NewFederationLeaf(
+	federationLeafEntity, err = oidfed.NewFederationLeaf(
 		fedConfig.EntityID, fedConfig.AuthorityHints, fedConfig.TrustAnchors, metadata,
-		pkg.NewEntityStatementSigner(
+		oidfed.NewEntityStatementSigner(
 			internal.GetKey(internal.FedSigningKeyName),
 			jwa.ES512(),
 		), 86400, internal.GetKey(internal.OIDCSigningKeyName), jwa.ES512(),

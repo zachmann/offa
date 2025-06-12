@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/writer"
 
-	"github.com/zachmann/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/config"
 )
 
 func mustGetFile(path string) io.Writer {

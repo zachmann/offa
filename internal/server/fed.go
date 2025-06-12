@@ -1,9 +1,9 @@
 package server
 
 import (
+	"github.com/go-oidfed/lib/oidfedconst"
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg/constants"
 )
 
 func addFederationEndpoints(s fiber.Router) {
@@ -16,6 +16,6 @@ func handleEntityConfiguration(ctx *fiber.Ctx) error {
 		log.WithError(err).Error("Failed to get entity configuration")
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get entity configuration")
 	}
-	ctx.Set(fiber.HeaderContentType, constants.ContentTypeEntityStatement)
+	ctx.Set(fiber.HeaderContentType, oidfedconst.ContentTypeEntityStatement)
 	return ctx.Send(jwt)
 }

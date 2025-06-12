@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/go-oidfed/lib"
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg"
 
-	"github.com/zachmann/offa/internal"
-	"github.com/zachmann/offa/internal/cache"
-	"github.com/zachmann/offa/internal/config"
-	"github.com/zachmann/offa/internal/model"
+	"github.com/go-oidfed/offa/internal"
+	"github.com/go-oidfed/offa/internal/cache"
+	"github.com/go-oidfed/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/model"
 )
 
 func isTrustedIP(ipStr string) bool {
@@ -90,7 +90,7 @@ func addAuthHandlers(s fiber.Router) {
 }
 
 func verifyUser(
-	claims model.UserClaims, require pkg.SliceOrSingleValue[map[model.Claim]pkg.SliceOrSingleValue[string]],
+	claims model.UserClaims, require oidfed.SliceOrSingleValue[map[model.Claim]oidfed.SliceOrSingleValue[string]],
 ) bool {
 	if len(require) == 0 {
 		return true
@@ -130,7 +130,9 @@ func verifyUser(
 	return false
 }
 
-func setHeaders(c *fiber.Ctx, headerClaims map[string]pkg.SliceOrSingleValue[model.Claim], userInfos model.UserClaims) {
+func setHeaders(
+	c *fiber.Ctx, headerClaims map[string]oidfed.SliceOrSingleValue[model.Claim], userInfos model.UserClaims,
+) {
 	if headerClaims == nil {
 		headerClaims = config.DefaultForwardHeaders
 	}

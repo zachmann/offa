@@ -13,9 +13,9 @@ import (
 
 	"github.com/lestrrat-go/jwx/v3/jwa"
 
-	"github.com/zachmann/go-oidfed/pkg/jwk"
+	"github.com/go-oidfed/lib/jwks"
 
-	"github.com/zachmann/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/config"
 )
 
 const FedSigningKeyName = "fed.signing.key"
@@ -49,23 +49,23 @@ func mustLoadKey(name string) crypto.Signer {
 }
 
 var keys map[string]crypto.Signer
-var jwks map[string]jwk.JWKS
+var jwksMap map[string]jwks.JWKS
 
 func InitKeys(names ...string) {
 	keys = make(map[string]crypto.Signer)
-	jwks = make(map[string]jwk.JWKS)
+	jwksMap = make(map[string]jwks.JWKS)
 	for _, name := range names {
 		keys[name] = mustLoadKey(name)
-		set := jwk.KeyToJWKS(keys[name].Public(), jwa.ES512())
-		jwks[name] = set
+		set := jwks.KeyToJWKS(keys[name].Public(), jwa.ES512())
+		jwksMap[name] = set
 	}
 }
 
 func GetKey(name string) crypto.Signer {
 	return keys[name]
 }
-func GetJWKS(name string) *jwk.JWKS {
-	set := jwks[name]
+func GetJWKS(name string) *jwks.JWKS {
+	set := jwksMap[name]
 	return &set
 }
 

@@ -16,14 +16,14 @@ OFFA also implements [Auth MemCookie](https://zenprojects.github.io/Apache-Authm
 
 ## Documentation
 
-For more information please refer to the Documentation at https://zachmann.github.io/offa/
+For more information please refer to the Documentation at https://go-oidfed.github.io/offa/
 
 
 
 ## OFFA Configuration
 
 Configuration of OFFA is explained in details at
-https://zachmann.github.io/offa/config/.
+https://go-oidfed.github.io/offa/config/.
 
 
 

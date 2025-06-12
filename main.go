@@ -5,15 +5,15 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/go-oidfed/lib"
 	"github.com/lestrrat-go/jwx/v3/jwa"
 	log "github.com/sirupsen/logrus"
-	"github.com/zachmann/go-oidfed/pkg"
 
-	"github.com/zachmann/offa/internal"
-	"github.com/zachmann/offa/internal/cache"
-	"github.com/zachmann/offa/internal/config"
-	"github.com/zachmann/offa/internal/logger"
-	"github.com/zachmann/offa/internal/server"
+	"github.com/go-oidfed/offa/internal"
+	"github.com/go-oidfed/offa/internal/cache"
+	"github.com/go-oidfed/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/logger"
+	"github.com/go-oidfed/offa/internal/server"
 )
 
 func main() {
@@ -25,13 +25,13 @@ func main() {
 	for _, c := range config.Get().Federation.TrustMarks {
 		if err := c.Verify(
 			config.Get().Federation.EntityID, "",
-			pkg.NewTrustMarkSigner(internal.GetKey(internal.FedSigningKeyName), jwa.ES512()),
+			oidfed.NewTrustMarkSigner(internal.GetKey(internal.FedSigningKeyName), jwa.ES512()),
 		); err != nil {
 			log.Fatal(err)
 		}
 	}
 	if config.Get().Federation.UseResolveEndpoint {
-		pkg.DefaultMetadataResolver = pkg.SmartRemoteMetadataResolver{}
+		oidfed.DefaultMetadataResolver = oidfed.SmartRemoteMetadataResolver{}
 	}
 	server.Init()
 	server.Start()
@@ -57,7 +57,7 @@ func reload() {
 	log.Info("Reloading config")
 	config.MustLoadConfig()
 	if config.Get().Federation.UseResolveEndpoint {
-		pkg.DefaultMetadataResolver = pkg.SmartRemoteMetadataResolver{}
+		oidfed.DefaultMetadataResolver = oidfed.SmartRemoteMetadataResolver{}
 	}
 	logger.SetOutput()
 	logger.MustUpdateAccessLogger()
