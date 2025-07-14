@@ -7,7 +7,7 @@ require (
 	github.com/go-oidfed/lib v0.4.1-0.20250612155810-cb8cd66243f4
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/gofiber/template/mustache/v2 v2.0.14
-	github.com/lestrrat-go/jwx/v3 v3.0.7
+	github.com/lestrrat-go/jwx/v3 v3.0.8
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/sirupsen/logrus v1.9.3
