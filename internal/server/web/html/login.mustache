@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{basepath}}/static/css/sakura-earthly.css" media="screen" />
+    <link rel="stylesheet" href="{{basepath}}/static/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="{{basepath}}/static/css/offa.css" />
+</head>
+<body>
+<h2>{{client_name}}</h2>
+{{#logo_uri}}
+    <img src="{{.}}" alt="Logo" class="logo"/>
+{{/logo_uri}}
+
+<h4>Choose an OP to login</h4>
+<form action="">
+    <select name="op" id="op">
+        <option value="/" selected disabled>Choose OP...</option>
+        {{#ops}}
+            <option value="{{EntityID}}">{{DisplayName}}</option>
+        {{/ops}}
+    </select>
+    <input type="hidden" name="next" value="{{next}}" />
+    <input type="submit" value="Login">
+</form>
+</body>
+</html>

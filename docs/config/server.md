@@ -134,3 +134,22 @@ OFFA checks if the user is authenticated and authorised to access the
 requested uri and return the response to the proxy.
 If the user is not authenticated, the request is redirected to the login 
 endpoint.
+
+## `web_overwrite_dir`
+<span class="badge badge-purple" title="Value Type">directory path</span>
+<span class="badge badge-green" title="If this option is required or optional">optional</span>
+
+The `web_overwrite_dir` config option is used to set a base directory path 
+that contains a directory structure with files that will overwrite embedded 
+web content.
+
+This option allows to overwrite html pages, css, and other web-related 
+content. See https://github.com/go-oidfed/offa/tree/main/internal/server/web 
+for the directory structure and content of the embedded files.
+
+??? file "config.yaml"
+
+    ```yaml
+    server:
+        web_overwrite_dir: /web
+    ```

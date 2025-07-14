@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"time"
 
@@ -36,7 +35,14 @@ func addLoginHandlers(s fiber.Router) {
 	s.Get("/redirect", codeExchange)
 }
 
-var opOptions string
+type opOption struct {
+	EntityID    string
+	DisplayName string
+	KeyWords    []string
+	LogoURI     string
+}
+
+var opOptions []opOption
 
 func scheduleBuildOPOptions() {
 	ticker := time.NewTicker(time.Duration(config.Get().Federation.EntityCollectionInterval) * time.Minute) // Replace 5 with your desired interval
@@ -51,10 +57,9 @@ func scheduleBuildOPOptions() {
 }
 
 func buildOPOptions() {
-	const opOptionFmt = `<option value="%s">%s</option>`
-	var options string
 	filters := []oidfed.EntityCollectionFilter{}
 	allOPs := make(map[string]*oidfed.CollectedEntity)
+	var options []opOption
 	for _, ta := range config.Get().Federation.TrustAnchors {
 		var collector oidfed.EntityCollector
 		if config.Get().Federation.UseEntityCollectionEndpoint {
@@ -76,8 +81,11 @@ func buildOPOptions() {
 		}
 	}
 	for _, op := range allOPs {
-		options += fmt.Sprintf(
-			opOptionFmt, op.EntityID, getDisplayNameFromEntityInfo(op),
+		options = append(
+			options, opOption{
+				EntityID:    op.EntityID,
+				DisplayName: getDisplayNameFromEntityInfo(op),
+			},
 		)
 	}
 	opOptions = options
@@ -102,12 +110,14 @@ func getDisplayNameFromEntityInfo(entity *oidfed.CollectedEntity) string {
 }
 
 func showLoginPage(c *fiber.Ctx) error {
-	var img string
-	if config.Get().Federation.LogoURI != "" {
-		img = fmt.Sprintf(`<img src="%s" alt="%s" class="logo"/>`, config.Get().Federation.LogoURI, "Logo")
-	}
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-	return c.SendString(fmt.Sprintf(loginHtml, config.Get().Federation.ClientName, img, opOptions, c.Query("next")))
+	return render(
+		c, "login", map[string]interface{}{
+			"client_name": config.Get().Federation.ClientName,
+			"logo_uri":    config.Get().Federation.LogoURI,
+			"ops":         opOptions,
+			"next":        c.Query("next"),
+		},
+	)
 }
 
 type stateData struct {
@@ -121,8 +131,7 @@ func doLogin(c *fiber.Ctx, opID string) error {
 	r, err := internal.RandomString(256)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	state := r[:64]
 	browserState := r[64:128]
@@ -139,14 +148,12 @@ func doLogin(c *fiber.Ctx, opID string) error {
 		}, 5*time.Minute,
 	); err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	challenge, err := pkceChallenge.Challenge()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 
 	params := url.Values{}
@@ -158,8 +165,7 @@ func doLogin(c *fiber.Ctx, opID string) error {
 	authURL, err := federationLeafEntity.GetAuthorizationURL(opID, redirectURI, state, scopes, params)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	c.Cookie(
 		&fiber.Cookie{
@@ -181,26 +187,22 @@ func codeExchange(c *fiber.Ctx) error {
 	errorDescription := c.Query("error_description")
 	if e != "" {
 		c.Status(444)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage(e, errorDescription))
+		return renderError(c, e, errorDescription)
 	}
 	var stateInfo stateData
 	found, err := cache.Get(cache.KeyStateData, state, &stateInfo)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	if !found {
 		c.Status(444)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("state mismatch", ""))
+		return renderError(c, "state mismatch", "")
 	}
 
 	if stateInfo.BrowserState != c.Cookies(browserStateCookieName) {
 		c.Status(444)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("state mismatch", ""))
+		return renderError(c, "state mismatch", "")
 	}
 
 	params := url.Values{}
@@ -210,20 +212,17 @@ func codeExchange(c *fiber.Ctx) error {
 	tokenRes, errRes, err := federationLeafEntity.CodeExchange(stateInfo.Issuer, code, redirectURI, params)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	if errRes != nil {
 		c.Status(444)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage(errRes.Error, errRes.ErrorDescription))
+		return renderError(c, errRes.Error, errRes.ErrorDescription)
 	}
 
 	msg, err := jws.ParseString(tokenRes.IDToken)
 	if err != nil {
 		c.Status(444)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("error parsing id token", err.Error()))
+		return renderError(c, "error parsing id token", err.Error())
 	}
 	c.ClearCookie(browserStateCookieName)
 	if err = cache.Set(cache.KeyStateData, state, nil, time.Nanosecond); err != nil {
@@ -234,7 +233,7 @@ func codeExchange(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(444)
 		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("error decoding id token", err.Error()))
+		return renderError(c, "error decoding id token", err.Error())
 	}
 	log.Debugf("Userclaims are: %+v", idTokenData)
 	//TODO userinfo endpoint
@@ -242,13 +241,11 @@ func codeExchange(c *fiber.Ctx) error {
 	sessionID, err := internal.RandomString(128)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 	if err = cache.SetSession(sessionID, idTokenData); err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-		return c.SendString(errorPage("internal server error", err.Error()))
+		return renderError(c, "internal server error", err.Error())
 	}
 
 	c.Cookie(

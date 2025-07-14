@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/go-oidfed/offa/internal/config"
 	logger2 "github.com/go-oidfed/offa/internal/logger"
 )
 
@@ -59,13 +60,23 @@ func addRequestIDMiddleware(s fiber.Router) {
 //go:embed favicon.ico
 var faviconFS embed.FS
 
-//go:embed static
-var _staticFS embed.FS
+//go:embed web
+var _webFS embed.FS
+var webFS fs.FS
 var staticFS fs.FS
+var htmlFS fs.FS
 
 func init() {
 	var err error
-	staticFS, err = fs.Sub(_staticFS, "static")
+	webFS, err = fs.Sub(_webFS, "web")
+	if err != nil {
+		log.WithError(err).Fatal()
+	}
+	staticFS, err = fs.Sub(webFS, "static")
+	if err != nil {
+		log.WithError(err).Fatal()
+	}
+	htmlFS, err = fs.Sub(webFS, "html")
 	if err != nil {
 		log.WithError(err).Fatal()
 	}
@@ -86,7 +97,11 @@ func addStaticFiles(s fiber.Router) {
 	s.Use(
 		"/static", filesystem.New(
 			filesystem.Config{
-				Root: http.FS(staticFS),
+				Root: newLocalAndOtherSearcherFilesystem(
+					joinIfFirstNotEmpty(
+						config.Get().Server.WebOverwriteDir, "static",
+					), http.FS(staticFS),
+				),
 			},
 		),
 	)

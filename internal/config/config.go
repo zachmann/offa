@@ -151,13 +151,14 @@ func (c authConf) FindRule(host, path string) *authRule {
 }
 
 type serverConf struct {
-	Port           int          `yaml:"port"`
-	TLS            tlsConf      `yaml:"tls"`
-	TrustedProxies []string     `yaml:"trusted_proxies"`
-	TrustedNets    []*net.IPNet `yaml:"-"`
-	Paths          pathConf     `yaml:"paths"`
-	Secure         bool         `yaml:"-"`
-	Basepath       string       `yaml:"-"`
+	Port            int          `yaml:"port"`
+	TLS             tlsConf      `yaml:"tls"`
+	TrustedProxies  []string     `yaml:"trusted_proxies"`
+	TrustedNets     []*net.IPNet `yaml:"-"`
+	Paths           pathConf     `yaml:"paths"`
+	Secure          bool         `yaml:"-"`
+	Basepath        string       `yaml:"-"`
+	WebOverwriteDir string       `yaml:"web_overwrite_dir"`
 }
 
 type pathConf struct {

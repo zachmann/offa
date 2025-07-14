@@ -6,6 +6,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20250403215159-8d39553ac7cf
 	github.com/go-oidfed/lib v0.4.1-0.20250612155810-cb8cd66243f4
 	github.com/gofiber/fiber/v2 v2.52.8
+	github.com/gofiber/template/mustache/v2 v2.0.14
 	github.com/lestrrat-go/jwx/v3 v3.0.7
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.10.0
@@ -18,12 +19,15 @@ require (
 	github.com/TwiN/gocache/v2 v2.2.2 // indirect
 	github.com/adam-hanna/arrayOperations v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/cbroglie/mustache v1.4.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-resty/resty/v2 v2.16.5 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
+	github.com/gofiber/template v1.8.3 // indirect
+	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jarcoal/httpmock v1.4.0 // indirect
