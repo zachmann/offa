@@ -85,6 +85,7 @@ func initFederationEntity() {
 			internal.GetKey(internal.FedSigningKeyName),
 			jwa.ES512(),
 		), 86400, internal.GetKey(internal.OIDCSigningKeyName), jwa.ES512(),
+		nil,
 	)
 	if err != nil {
 		log.Fatal(err)
