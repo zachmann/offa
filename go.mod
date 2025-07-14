@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20250403215159-8d39553ac7cf
-	github.com/go-oidfed/lib v0.4.1-0.20250612155810-cb8cd66243f4
+	github.com/go-oidfed/lib v0.5.0
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/gofiber/template/mustache/v2 v2.0.14
 	github.com/lestrrat-go/jwx/v3 v3.0.8
@@ -32,7 +32,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jarcoal/httpmock v1.4.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc/v3 v3.0.0 // indirect
@@ -55,6 +55,5 @@ require (
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	tideland.dev/go/slices v0.2.0 // indirect
 )
