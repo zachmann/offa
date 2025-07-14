@@ -32,13 +32,26 @@ type Config struct {
 }
 
 type federationConf struct {
-	EntityID                    string                                       `yaml:"entity_id"`
-	ClientName                  string                                       `yaml:"client_name"`
-	LogoURI                     string                                       `yaml:"logo_uri"`
-	Scopes                      []string                                     `yaml:"scopes"`
-	TrustAnchors                oidfed.TrustAnchors                          `yaml:"trust_anchors"`
-	AuthorityHints              []string                                     `yaml:"authority_hints"`
-	OrganizationName            string                                       `yaml:"organization_name"`
+	EntityID       string              `yaml:"entity_id"`
+	TrustAnchors   oidfed.TrustAnchors `yaml:"trust_anchors"`
+	AuthorityHints []string            `yaml:"authority_hints"`
+
+	Scopes                       []string       `yaml:"scopes"`
+	ClientName                   string         `yaml:"client_name"`
+	ClientURI                    string         `yaml:"client_uri"`
+	DisplayName                  string         `yaml:"display_name"`
+	Description                  string         `yaml:"description"`
+	Keywords                     []string       `yaml:"keywords"`
+	Contacts                     []string       `yaml:"contacts"`
+	PolicyURI                    string         `yaml:"policy_uri"`
+	TOSURI                       string         `yaml:"tos_uri"`
+	InformationURI               string         `yaml:"information_uri"`
+	LogoURI                      string         `yaml:"logo_uri"`
+	OrganizationName             string         `yaml:"organization_name"`
+	OrganizationURI              string         `yaml:"organization_uri"`
+	ExtraRPMetadata              map[string]any `yaml:"extra_rp_metadata"`
+	ExtraEntityConfigurationData map[string]any `yaml:"extra_entity_configuration_data"`
+
 	KeyStorage                  string                                       `yaml:"key_storage"`
 	OnlyAutomaticOPs            bool                                         `yaml:"filter_to_automatic_ops"`
 	TrustMarks                  []*oidfed.EntityConfigurationTrustMarkConfig `yaml:"trust_marks"`
@@ -290,7 +303,6 @@ func MustLoadConfig() {
 			CookieName: "offa-session",
 		},
 		Federation: federationConf{
-			ClientName:               "OFFA - Openid Federation Forward Auth",
 			EntityCollectionInterval: 5,
 		},
 	}
@@ -299,6 +311,15 @@ func MustLoadConfig() {
 	}
 	if conf.Federation.KeyStorage == "" {
 		log.Fatal("key_storage must be given")
+	}
+	if conf.Federation.ClientName == "" {
+		conf.Federation.ClientName = conf.Federation.DisplayName
+	}
+	if conf.Federation.DisplayName == "" {
+		if conf.Federation.ClientName == "" {
+			conf.Federation.ClientName = "OFFA - Openid Federation Forward Auth"
+		}
+		conf.Federation.DisplayName = conf.Federation.ClientName
 	}
 	if conf.Federation.LogoURI == "" {
 		conf.Federation.LogoURI = conf.Federation.EntityID + "/static/img/offa-text.svg"

@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-oidfed/offa/internal"
 	"github.com/go-oidfed/offa/internal/config"
+	"github.com/go-oidfed/offa/internal/version"
 )
 
 var server *fiber.App
@@ -62,22 +63,41 @@ func initFederationEntity() {
 
 	metadata := &oidfed.Metadata{
 		RelyingParty: &oidfed.OpenIDRelyingPartyMetadata{
-			Scope:                   scopes,
-			RedirectURIS:            []string{redirectURI},
-			ResponseTypes:           []string{"code"},
-			GrantTypes:              []string{"authorization_code"},
-			ApplicationType:         "web",
-			ClientName:              fedConfig.ClientName,
-			LogoURI:                 fedConfig.LogoURI,
-			JWKS:                    internal.GetJWKS(internal.OIDCSigningKeyName),
-			OrganizationName:        fedConfig.OrganizationName,
-			ClientRegistrationTypes: []string{"automatic"},
+			Scope:                       scopes,
+			RedirectURIS:                []string{redirectURI},
+			ResponseTypes:               []string{"code"},
+			GrantTypes:                  []string{"authorization_code"},
+			ApplicationType:             "web",
+			Contacts:                    fedConfig.Contacts,
+			ClientName:                  fedConfig.ClientName,
+			LogoURI:                     fedConfig.LogoURI,
+			ClientURI:                   fedConfig.ClientURI,
+			PolicyURI:                   fedConfig.PolicyURI,
+			TOSURI:                      fedConfig.TOSURI,
+			TokenEndpointAuthMethod:     "private_key_jwt",
+			TokenEndpointAuthSigningAlg: jwa.ES512().String(),
+			InitiateLoginURI:            fullLoginPath,
+			SoftwareID:                  version.SOFTWAREID,
+			SoftwareVersion:             version.VERSION,
+			ClientRegistrationTypes:     []string{"automatic"},
+			Extra:                       fedConfig.ExtraRPMetadata,
+			JWKS:                        internal.GetJWKS(internal.OIDCSigningKeyName),
+			DisplayName:                 fedConfig.DisplayName,
+			Description:                 fedConfig.Description,
+			Keywords:                    fedConfig.Keywords,
+			InformationURI:              fedConfig.InformationURI,
+			OrganizationName:            fedConfig.OrganizationName,
+			OrganizationURI:             fedConfig.OrganizationURI,
 		},
 		FederationEntity: &oidfed.FederationEntityMetadata{
 			OrganizationName: fedConfig.OrganizationName,
 			LogoURI:          fedConfig.LogoURI,
 		},
 	}
+	if fedConfig.ExtraEntityConfigurationData == nil {
+		fedConfig.ExtraEntityConfigurationData = make(map[string]any)
+	}
+	fedConfig.ExtraEntityConfigurationData["offa_version"] = version.VERSION
 	var err error
 	federationLeafEntity, err = oidfed.NewFederationLeaf(
 		fedConfig.EntityID, fedConfig.AuthorityHints, fedConfig.TrustAnchors, metadata,
@@ -85,7 +105,7 @@ func initFederationEntity() {
 			internal.GetKey(internal.FedSigningKeyName),
 			jwa.ES512(),
 		), 86400, internal.GetKey(internal.OIDCSigningKeyName), jwa.ES512(),
-		nil,
+		fedConfig.ExtraEntityConfigurationData,
 	)
 	if err != nil {
 		log.Fatal(err)
