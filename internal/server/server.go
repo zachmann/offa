@@ -43,6 +43,7 @@ func Init() {
 	addFederationEndpoints(server)
 	addAuthHandlers(server)
 	addLoginHandlers(server)
+	addUserPageHandler(server)
 }
 
 func initFederationEntity() {

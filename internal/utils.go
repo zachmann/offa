@@ -45,15 +45,28 @@ func FirstNonEmptyFnc[C comparable](possibleValues ...func() C) C {
 	return nullValue
 }
 
-// FirstNonEmptyQueryParameter check a fiber.
-// Ctx for multiple parameters and returns the value for the first one that is
-// set
+// FirstNonEmptyQueryParameter checks a fiber.Ctx for multiple query
+// parameters and returns the value for the first one that is set
 func FirstNonEmptyQueryParameter(c *fiber.Ctx, parameters ...string) string {
 	var fncs []func() string
 	for _, param := range parameters {
 		fncs = append(
 			fncs, func() string {
 				return c.Query(param)
+			},
+		)
+	}
+	return FirstNonEmptyFnc(fncs...)
+}
+
+// FirstNonEmptyHeaderParameter checks a fiber.Ctx for multiple header
+// parameters and returns the value for the first one that is set
+func FirstNonEmptyHeaderParameter(c *fiber.Ctx, parameters ...string) string {
+	var fncs []func() string
+	for _, param := range parameters {
+		fncs = append(
+			fncs, func() string {
+				return c.Get(param)
 			},
 		)
 	}
