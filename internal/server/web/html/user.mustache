@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{basepath}}/static/css/sakura-earthly.css" media="screen" />
+    <link rel="stylesheet" href="{{basepath}}/static/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="{{basepath}}/static/css/offa.css" />
+</head>
+<body>
+<h2>Hello {{username}}</h2>
+
+<h4>This is what we know about you</h4>
+<table>
+    <thead>
+    <tr>
+        <th style="min-width: 8em;">HTTP Header</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#headers}}
+            <tr>
+                <td>{{Header}}</td>
+                <td>{{Value}}</td>
+            </tr>
+        {{/headers}}
+    </tbody>
+</table>
+</body>
+</html>

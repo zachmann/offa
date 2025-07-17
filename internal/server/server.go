@@ -32,6 +32,7 @@ var requestObjectProducer *oidfed.RequestObjectProducer
 var scopes string
 var redirectURI string
 var fullLoginPath string
+var fullAuthPath string
 
 // Init initializes the server
 func Init() {
@@ -43,6 +44,7 @@ func Init() {
 	addFederationEndpoints(server)
 	addAuthHandlers(server)
 	addLoginHandlers(server)
+	addUserPageHandler(server)
 }
 
 func initFederationEntity() {
@@ -53,6 +55,7 @@ func initFederationEntity() {
 		redirectURI = fedConfig.EntityID + "/redirect"
 	}
 	fullLoginPath = fedConfig.EntityID + getFullPath(config.Get().Server.Paths.Login)
+	fullAuthPath = fedConfig.EntityID + getFullPath(config.Get().Server.Paths.ForwardAuth)
 	scopes = strings.Join(fedConfig.Scopes, " ")
 	if scopes == "" {
 		scopes = "openid profile email"
