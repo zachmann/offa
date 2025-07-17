@@ -81,9 +81,9 @@ func (c sessionConf) validate() error {
 	return nil
 }
 
-type authConf []*authRule
+type authConf []*AuthRule
 
-type authRule struct {
+type AuthRule struct {
 	Domain             string                                                                       `yaml:"domain"`
 	DomainRegex        string                                                                       `yaml:"domain_regex"`
 	DomainPattern      *regexp.Regexp                                                               `yaml:"-"`
@@ -122,7 +122,7 @@ var DefaultMemCachedClaims = map[string]oidfed.SliceOrSingleValue[model.Claim]{
 	"Subject":   {"sub"},
 }
 
-func (r *authRule) validate() error {
+func (r *AuthRule) validate() error {
 	if r.Domain != "" {
 		r.DomainRegex = regexp.QuoteMeta(r.Domain)
 	}
@@ -149,7 +149,7 @@ func (c *authConf) validate() error {
 	return nil
 }
 
-func (c authConf) FindRule(host, path string) *authRule {
+func (c authConf) FindRule(host, path string) *AuthRule {
 	for _, rule := range c {
 		if rule.DomainPattern.MatchString(host) {
 			if rule.PathPattern == nil {

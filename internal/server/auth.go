@@ -55,10 +55,18 @@ func addAuthHandlers(s fiber.Router) {
 
 			forHost := c.Get(fiber.HeaderXForwardedHost)
 			forPath := c.Get("X-Forwarded-Uri")
-			if len(config.Get().Auth) == 0 {
-				return c.Status(fiber.StatusForbidden).SendString("Forbidden")
+
+			var rule *config.AuthRule
+			if forHost == "" && forPath == "/" {
+				rule = &config.AuthRule{
+					ForwardHeaders: config.DefaultForwardHeaders, //TODO
+				}
+			} else {
+				if len(config.Get().Auth) == 0 {
+					return c.Status(fiber.StatusForbidden).SendString("Forbidden")
+				}
+				rule = config.Get().Auth.FindRule(forHost, forPath)
 			}
-			rule := config.Get().Auth.FindRule(forHost, forPath)
 			if rule == nil {
 				return c.Status(fiber.StatusForbidden).SendString("Forbidden")
 			}
