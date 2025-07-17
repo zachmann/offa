@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-oidfed/lib"
@@ -54,7 +55,7 @@ func addLoginHandlers(s fiber.Router) {
 type opOption struct {
 	EntityID    string
 	DisplayName string
-	KeyWords    []string
+	KeyWords    string
 	LogoURI     string
 }
 
@@ -101,6 +102,8 @@ func buildOPOptions() {
 			options, opOption{
 				EntityID:    op.EntityID,
 				DisplayName: getDisplayNameFromEntityInfo(op),
+				LogoURI:     getLogoURIFromEntityInfo(op),
+				KeyWords:    strings.Join(getKeywordsFromEntityInfo(op), " "),
 			},
 		)
 	}
@@ -123,6 +126,36 @@ func getDisplayNameFromEntityInfo(entity *oidfed.CollectedEntity) string {
 		return fed.DisplayName
 	}
 	return entity.EntityID
+}
+
+func getKeywordsFromEntityInfo(entity *oidfed.CollectedEntity) []string {
+	if entity == nil || entity.UIInfos == nil {
+		return nil
+	}
+	op, ok := entity.UIInfos[oidfedconst.EntityTypeOpenIDProvider]
+	if ok && op.Keywords != nil {
+		return op.Keywords
+	}
+	fed, ok := entity.UIInfos[oidfedconst.EntityTypeFederationEntity]
+	if ok && fed.Keywords != nil {
+		return fed.Keywords
+	}
+	return nil
+}
+
+func getLogoURIFromEntityInfo(entity *oidfed.CollectedEntity) string {
+	if entity == nil || entity.UIInfos == nil {
+		return ""
+	}
+	op, ok := entity.UIInfos[oidfedconst.EntityTypeOpenIDProvider]
+	if ok && op.LogoURI != "" {
+		return op.LogoURI
+	}
+	fed, ok := entity.UIInfos[oidfedconst.EntityTypeFederationEntity]
+	if ok && fed.LogoURI != "" {
+		return fed.LogoURI
+	}
+	return ""
 }
 
 func showLoginPage(c *fiber.Ctx) error {

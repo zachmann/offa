@@ -5,3 +5,64 @@ body {
 img.logo {
     max-height: 200px;
 }
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    /*font-family: sans-serif;*/
+}
+
+.dropdown-toggle {
+    border: 1px solid #222222;
+    padding: 10px;
+    background: #4a4a4a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-toggle img {
+    height: 30px;
+    margin-right: 8px;
+    margin-bottom: 0;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #222222;
+    background: #4a4a4a;
+    z-index: 1;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.dropdown-menu input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid #222222;
+    box-sizing: border-box;
+}
+
+.dropdown-menu div.option {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-menu div.option:hover {
+    background: #4a8ba8;
+}
+
+.dropdown-menu img {
+    height: 30px;
+    margin-right: 8px;
+    margin-bottom: 0;
+}
