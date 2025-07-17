@@ -84,15 +84,16 @@ func (c sessionConf) validate() error {
 type authConf []*authRule
 
 type authRule struct {
-	Domain             string                                                                       `yaml:"domain"`
-	DomainRegex        string                                                                       `yaml:"domain_regex"`
-	DomainPattern      *regexp.Regexp                                                               `yaml:"-"`
-	Path               string                                                                       `yaml:"path"`
-	PathRegex          string                                                                       `yaml:"path_regex"`
-	PathPattern        *regexp.Regexp                                                               `yaml:"-"`
-	Require            oidfed.SliceOrSingleValue[map[model.Claim]oidfed.SliceOrSingleValue[string]] `yaml:"require"`
-	ForwardHeaders     map[string]oidfed.SliceOrSingleValue[model.Claim]                            `yaml:"forward_headers"`
-	RedirectStatusCode int                                                                          `yaml:"redirect_status"`
+	Domain               string                                                                       `yaml:"domain"`
+	DomainRegex          string                                                                       `yaml:"domain_regex"`
+	DomainPattern        *regexp.Regexp                                                               `yaml:"-"`
+	Path                 string                                                                       `yaml:"path"`
+	PathRegex            string                                                                       `yaml:"path_regex"`
+	PathPattern          *regexp.Regexp                                                               `yaml:"-"`
+	Require              oidfed.SliceOrSingleValue[map[model.Claim]oidfed.SliceOrSingleValue[string]] `yaml:"require"`
+	ForwardHeaders       map[string]oidfed.SliceOrSingleValue[model.Claim]                            `yaml:"forward_headers"`
+	ForwardHeadersPrefix string                                                                       `yaml:"forward_headers_prefix"`
+	RedirectStatusCode   int                                                                          `yaml:"redirect_status"`
 }
 
 var DefaultForwardHeaders = map[string]oidfed.SliceOrSingleValue[model.Claim]{
