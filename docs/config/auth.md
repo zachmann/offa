@@ -186,10 +186,10 @@ The following is a more complex example with four different require options:
 <span class="badge badge-blue" title="Default Value">see file example</span>
 <span class="badge badge-green" title="If this option is required or optional">optional</span>
 
-The `forward_headers` option is used to specify HTTP Headers that should be 
-forwarded to the client / site and also from which OIDC claims the information should
-be obtained. The `forward_headers` is a mapping where keys are http header 
-names, and the value are oidc claims.
+The `forward_headers` option is used to specify which HTTP Headers that 
+should be forwarded to the client / site and also from which OIDC claims the
+information should be obtained. The `forward_headers` is a mapping where keys
+are http header names, and the value are oidc claims.
 
 !!! info
 
@@ -219,6 +219,26 @@ The default mapping is as listed in the following `config.yaml` example.
             X-Forwarded-Name: name
             X-Forwarded-Provider: iss
             X-Forwarded-Subject: sub
+    ```
+
+To forward all oidc claims use the
+[`forward_headers_prefix`](#forward_headers_prefix) config option.
+
+## `forward_headers_prefix`
+<span class="badge badge-purple" title="Value Type">string</span>
+<span class="badge badge-green" title="If this option is required or optional">optional</span>
+
+The `forward_headers_prefix` config option is used to set a prefix for 
+forwarded headers. When this option is set, all information OFFA obtains is 
+forwarded via http headers. The name of the headers will be 
+`<prefix>-<claim_name>`.
+
+??? file "config.yaml"
+
+    ```yaml
+    auth:
+      - domain: foobar.example.com
+        forward_headers_prefix: oidc
     ```
 
 ## `redirect_status`
