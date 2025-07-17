@@ -12,15 +12,30 @@
 {{/logo_uri}}
 
 <h4>Choose an OP to login</h4>
-<form action="">
-    <select name="op" id="op">
-        <option value="/" selected disabled>Choose OP...</option>
-        {{#ops}}
-            <option value="{{EntityID}}">{{DisplayName}}</option>
-        {{/ops}}
-    </select>
+<form action="" id="form">
+
+    <div class="dropdown">
+        <div class="dropdown-toggle">
+            <span>Select OP</span>
+        </div>
+        <div class="dropdown-menu">
+            <input type="text" placeholder="Search...">
+            {{#ops}}
+                <div class="option"
+                     data-value="{{EntityID}}"
+                     data-tags="{{Keywords}}">
+                    {{#LogoURI}}
+                        <img src="{{.}}" alt="Logo">
+                    {{/LogoURI}}
+                    {{DisplayName}}
+                </div>
+            {{/ops}}
+        </div>
+    </div>
+
+    <input type="hidden" name="iss" id="issuer"/>
     <input type="hidden" name="next" value="{{next}}" />
-    <input type="submit" value="Login">
 </form>
 </body>
+<script src="{{basepath}}/static/js/login.js"></script>
 </html>

@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-oidfed/lib"
@@ -21,15 +22,31 @@ import (
 
 const browserStateCookieName = "_offa_auth_state"
 
+type postLoginRequest struct {
+	Issuer        string `json:"iss" form:"iss" query:"iss"`
+	LoginHint     string `json:"login_hint" form:"login_hint" query:"login_hint"`
+	TargetLinkURI string `json:"target_link_uri" form:"target_link_uri" query:"target_link_uri"`
+}
+
 func addLoginHandlers(s fiber.Router) {
 	path := config.Get().Server.Paths.Login
 	s.Get(
 		path, func(c *fiber.Ctx) error {
-			opID := internal.FirstNonEmptyQueryParameter(c, "op", "entity_id", "entity", "iss", "issuer")
+			opID := internal.FirstNonEmptyQueryParameter(c, "iss", "op", "entity_id", "entity", "issuer")
 			if opID != "" {
-				return doLogin(c, opID)
+				next := internal.FirstNonEmptyQueryParameter(c, "target_link_uri", "next")
+				return doLogin(c, opID, next, c.Query("login_hint"))
 			}
 			return showLoginPage(c)
+		},
+	)
+	s.Post(
+		path, func(c *fiber.Ctx) error {
+			var req postLoginRequest
+			if err := c.BodyParser(&req); err != nil {
+				return c.JSON(oidfed.ErrorInvalidRequest("could not parse request parameters: " + err.Error()))
+			}
+			return doLogin(c, req.Issuer, req.TargetLinkURI, req.LoginHint)
 		},
 	)
 	s.Get("/redirect", codeExchange)
@@ -38,7 +55,7 @@ func addLoginHandlers(s fiber.Router) {
 type opOption struct {
 	EntityID    string
 	DisplayName string
-	KeyWords    []string
+	KeyWords    string
 	LogoURI     string
 }
 
@@ -85,6 +102,8 @@ func buildOPOptions() {
 			options, opOption{
 				EntityID:    op.EntityID,
 				DisplayName: getDisplayNameFromEntityInfo(op),
+				LogoURI:     getLogoURIFromEntityInfo(op),
+				KeyWords:    strings.Join(getKeywordsFromEntityInfo(op), " "),
 			},
 		)
 	}
@@ -109,6 +128,36 @@ func getDisplayNameFromEntityInfo(entity *oidfed.CollectedEntity) string {
 	return entity.EntityID
 }
 
+func getKeywordsFromEntityInfo(entity *oidfed.CollectedEntity) []string {
+	if entity == nil || entity.UIInfos == nil {
+		return nil
+	}
+	op, ok := entity.UIInfos[oidfedconst.EntityTypeOpenIDProvider]
+	if ok && op.Keywords != nil {
+		return op.Keywords
+	}
+	fed, ok := entity.UIInfos[oidfedconst.EntityTypeFederationEntity]
+	if ok && fed.Keywords != nil {
+		return fed.Keywords
+	}
+	return nil
+}
+
+func getLogoURIFromEntityInfo(entity *oidfed.CollectedEntity) string {
+	if entity == nil || entity.UIInfos == nil {
+		return ""
+	}
+	op, ok := entity.UIInfos[oidfedconst.EntityTypeOpenIDProvider]
+	if ok && op.LogoURI != "" {
+		return op.LogoURI
+	}
+	fed, ok := entity.UIInfos[oidfedconst.EntityTypeFederationEntity]
+	if ok && fed.LogoURI != "" {
+		return fed.LogoURI
+	}
+	return ""
+}
+
 func showLoginPage(c *fiber.Ctx) error {
 	return render(
 		c, "login", map[string]interface{}{
@@ -127,7 +176,7 @@ type stateData struct {
 	Next          string
 }
 
-func doLogin(c *fiber.Ctx, opID string) error {
+func doLogin(c *fiber.Ctx, opID, next, loginHint string) error {
 	r, err := internal.RandomString(256)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -144,7 +193,7 @@ func doLogin(c *fiber.Ctx, opID string) error {
 			CodeChallenge: *pkceChallenge,
 			Issuer:        opID,
 			BrowserState:  browserState,
-			Next:          c.Query("next"),
+			Next:          next,
 		}, 5*time.Minute,
 	); err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -161,6 +210,9 @@ func doLogin(c *fiber.Ctx, opID string) error {
 	params.Set("code_challenge", challenge)
 	params.Set("code_challenge_method", pkceChallenge.Method().String())
 	params.Set("prompt", "consent")
+	if loginHint != "" {
+		params.Set("login_hint", loginHint)
+	}
 
 	authURL, err := federationLeafEntity.GetAuthorizationURL(opID, redirectURI, state, scopes, params)
 	if err != nil {

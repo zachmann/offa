@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/go-oidfed/lib"
 	"github.com/gofiber/fiber/v2"
@@ -90,7 +91,7 @@ func addAuthHandlers(s fiber.Router) {
 				return c.Status(fiber.StatusForbidden).SendString("Forbidden")
 			}
 
-			setHeaders(c, rule.ForwardHeaders, userInfos)
+			setHeaders(c, rule.ForwardHeadersPrefix, rule.ForwardHeaders, userInfos)
 
 			return c.SendStatus(fiber.StatusOK)
 		},
@@ -139,10 +140,20 @@ func verifyUser(
 }
 
 func setHeaders(
-	c *fiber.Ctx, headerClaims map[string]oidfed.SliceOrSingleValue[model.Claim], userInfos model.UserClaims,
+	c *fiber.Ctx, headerPrefix string, headerClaims map[string]oidfed.SliceOrSingleValue[model.Claim],
+	userInfos model.UserClaims,
 ) {
-	if headerClaims == nil {
+	if headerClaims == nil && headerPrefix == "" {
 		headerClaims = config.DefaultForwardHeaders
+	}
+	if headerPrefix != "" {
+		for claim := range userInfos {
+			value, ok := userInfos.GetForHeader(claim)
+			if !ok {
+				continue
+			}
+			c.Set(fmt.Sprintf("%s-%s", headerPrefix, strings.ToTitle(string(claim))), value)
+		}
 	}
 	for header, claim := range headerClaims {
 		var value string
