@@ -3,6 +3,7 @@ package server
 import (
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -63,13 +64,20 @@ func renderHeaders(c *fiber.Ctx, headers map[string][]string) error {
 	}
 	var hd []headerData
 	for h, vs := range headers {
-		hd = append(
-			hd, headerData{
-				Header: h,
-				Value:  strings.Join(vs, ", "),
-			},
-		)
+		if strings.HasPrefix(strings.ToLower(h), "oidc") {
+			hd = append(
+				hd, headerData{
+					Header: h,
+					Value:  strings.Join(vs, ", "),
+				},
+			)
+		}
 	}
+	sort.Slice(
+		hd, func(i, j int) bool {
+			return hd[i].Header < hd[j].Header
+		},
+	)
 	return render(
 		c, "user", map[string]interface{}{
 			"headers":  hd,

@@ -60,7 +60,7 @@ func addAuthHandlers(s fiber.Router) {
 			var rule *config.AuthRule
 			if forHost == "" && forPath == "/" {
 				rule = &config.AuthRule{
-					ForwardHeaders: config.DefaultForwardHeaders, //TODO
+					ForwardHeadersPrefix: "OIDC",
 				}
 			} else {
 				if len(config.Get().Auth) == 0 {
